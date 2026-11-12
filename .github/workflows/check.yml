@@ -1,0 +1,83 @@
+# Runs tools/check.mjs on Linux, Windows and macOS, once per course language, for every change.
+# Languages and versions come from repo.json and tools/languages.json, so this file never changes when they do.
+# The release workflow runs this same check before it builds anything.
+
+name: Check
+
+on:
+  push:
+    branches: [main, solutions]
+  pull_request:
+    branches: [main, solutions]
+  workflow_dispatch:
+  workflow_call:
+    inputs:
+      branch:
+        description: Which branch's rules apply (the release passes "main")
+        type: string
+        required: false
+
+permissions:
+  contents: read
+
+env:
+  # Pull requests check the branch they target; pushes check their own branch.
+  BRANCH: ${{ inputs.branch || github.base_ref || github.ref_name }}
+
+jobs:
+  rules:
+    name: Files and rules
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.matrix.outputs.matrix }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22 # the tools need Node.js 22
+      - name: Check files, rules and generated parts
+        run: node tools/check.mjs --static --branch "$BRANCH"
+      - name: List the languages to run
+        id: matrix
+        run: echo "matrix=$(node tools/check.mjs --matrix)" >> "$GITHUB_OUTPUT"
+
+  run:
+    name: ${{ matrix.lang.language }} on ${{ matrix.os }}
+    needs: rules
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        lang: ${{ fromJSON(needs.rules.outputs.matrix) }}
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v7
+        with:
+          # The tools need Node.js 22; a JavaScript job installs the course's version instead.
+          node-version: ${{ matrix.lang.language == 'javascript' && matrix.lang.version || '22' }}
+      - if: matrix.lang.language == 'java'
+        uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: ${{ matrix.lang.version }}
+      - if: matrix.lang.language == 'python'
+        uses: actions/setup-python@v7
+        with:
+          python-version: ${{ matrix.lang.version }}
+
+      - name: Setup check, as readers run it (Linux and macOS)
+        if: runner.os != 'Windows'
+        run: bash setup/check-setup.sh "${{ matrix.lang.language }}"
+      - name: Setup check, as readers run it (Windows)
+        if: runner.os == 'Windows'
+        shell: cmd
+        run: .\setup\check-setup.cmd ${{ matrix.lang.language }}
+
+      # On Windows, check.mjs runs every command in Windows PowerShell 5.1, as readers do; elsewhere in bash.
+      - name: Run every project and example
+        run: node tools/check.mjs --lang "${{ matrix.lang.language }}" --branch "${{ env.BRANCH }}"

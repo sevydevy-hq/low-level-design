@@ -1,0 +1,10 @@
+{
+  "$schema": "./tools/schema/repo.schema.json",
+  "course": "Low-Level Design",
+  "github": "sevydevy-hq/low-level-design",
+  "version": "v1.0",
+  "branches": { "main": "main", "solutions": "solutions" },
+  "solutionsTagSuffix": "-solutions",
+  "folders": { "projects": "projects", "examples": "examples", "setup": "setup" },
+  "languages": ["cpp", "java", "javascript", "python"]
+}

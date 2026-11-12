@@ -1,0 +1,280 @@
+{
+  "$schema": "./schema/languages.schema.json",
+  "about": "Every language the repo can use. repo.json picks which ones this course uses. version is what CI and the ready-made environment install; tested, detect.min and container options may use {version}. Other tokens: {slug} parking-lot, {snake} parking_lot, {pascal} ParkingLot, {n} the round number, {testFile} and {testName} (file name without extension) for the round, {testBin} the C++ test program, {sources} the project's extra source files for that language. detect.pattern must work as a POSIX ERE, a JavaScript and a .NET regex: one capture group, [0-9] not \\d, no (?:). results: the last line(s) a test run prints, with {pass}, {fail} and {total}, shown to readers as what to look for.",
+  "container": {
+    "image": "mcr.microsoft.com/devcontainers/cpp:1-ubuntu-24.04"
+  },
+  "languages": {
+    "cpp": {
+      "name": "C++",
+      "tested": "g++ with C++17",
+      "versionCheck": {
+        "bash": "g++ --version",
+        "powershell": "g++ --version"
+      },
+      "detect": {
+        "bash": "g++ --version",
+        "powershell": "g++ --version",
+        "pattern": "[ )]([0-9]+)\\.[0-9]+\\.[0-9]+",
+        "min": "9"
+      },
+      "results": {
+        "start": "RESULT: {pass} passed, {fail} failed",
+        "done": "RESULT: {total} passed, 0 failed"
+      },
+      "install": {
+        "windows": {
+          "command": "winget install -e --id BrechtSanders.WinLibs.POSIX.UCRT",
+          "page": "https://winlibs.com/"
+        },
+        "linux": {
+          "command": "sudo apt install -y g++",
+          "page": "https://gcc.gnu.org/install/binaries.html"
+        },
+        "macos": {
+          "page": "https://developer.apple.com/xcode/resources/"
+        }
+      },
+      "container": {
+        "extensions": [
+          "ms-vscode.cpptools"
+        ]
+      },
+      "files": {
+        "test": [
+          "test.cpp",
+          "test_round{n}.cpp"
+        ],
+        "testBin": [
+          "run_tests",
+          "run_tests_round{n}"
+        ],
+        "demo": "main.cpp"
+      },
+      "commands": {
+        "bash": {
+          "test": [
+            "g++ -std=c++17 {testFile} {sources} -o {testBin}",
+            "./{testBin}"
+          ],
+          "demo": [
+            "g++ -std=c++17 -O2 main.cpp {sources} -o app",
+            "./app"
+          ]
+        },
+        "powershell": {
+          "test": [
+            "g++ -std=c++17 {testFile} {sources} -o {testBin}.exe",
+            ".\\{testBin}.exe"
+          ],
+          "demo": [
+            "g++ -std=c++17 -O2 main.cpp {sources} -o app.exe",
+            ".\\app.exe"
+          ]
+        }
+      },
+      "runner": "cpp"
+    },
+    "java": {
+      "name": "Java",
+      "version": "21",
+      "tested": "JDK {version}",
+      "versionCheck": {
+        "bash": "java -version",
+        "powershell": "java -version"
+      },
+      "detect": {
+        "bash": "javac -version",
+        "powershell": "javac -version",
+        "pattern": "javac (1\\.[0-9]+|[0-9]+)",
+        "min": "{version}"
+      },
+      "results": {
+        "start": "RESULT: {pass} passed, {fail} failed",
+        "done": "RESULT: {total} passed, 0 failed"
+      },
+      "install": {
+        "windows": {
+          "command": "winget install -e --id EclipseAdoptium.Temurin.21.JDK",
+          "page": "https://adoptium.net/temurin/releases/?version=21"
+        },
+        "linux": {
+          "command": "sudo apt install -y openjdk-21-jdk",
+          "page": "https://adoptium.net/installation/linux/"
+        },
+        "macos": {
+          "page": "https://adoptium.net/temurin/releases/?version=21"
+        }
+      },
+      "container": {
+        "feature": "ghcr.io/devcontainers/features/java:1",
+        "options": {
+          "version": "{version}"
+        },
+        "extensions": [
+          "vscjava.vscode-java-pack"
+        ]
+      },
+      "files": {
+        "test": [
+          "{pascal}Test.java",
+          "{pascal}Round{n}Test.java"
+        ],
+        "demo": "Main.java"
+      },
+      "commands": {
+        "bash": {
+          "test": [
+            "javac *.java",
+            "java {testName}"
+          ],
+          "demo": [
+            "javac *.java",
+            "java Main"
+          ]
+        },
+        "powershell": {
+          "test": [
+            "javac *.java",
+            "java {testName}"
+          ],
+          "demo": [
+            "javac *.java",
+            "java Main"
+          ]
+        }
+      },
+      "runner": "java"
+    },
+    "javascript": {
+      "name": "JavaScript",
+      "version": "22",
+      "tested": "Node.js {version}",
+      "versionCheck": {
+        "bash": "node --version",
+        "powershell": "node --version"
+      },
+      "detect": {
+        "bash": "node --version",
+        "powershell": "node --version",
+        "pattern": "v([0-9]+)\\.",
+        "min": "{version}"
+      },
+      "results": {
+        "start": "ℹ pass {pass} and ℹ fail {fail}",
+        "done": "ℹ fail 0"
+      },
+      "install": {
+        "windows": {
+          "command": "winget install -e --id OpenJS.NodeJS.22",
+          "page": "https://nodejs.org/en/download"
+        },
+        "linux": {
+          "page": "https://nodejs.org/en/download"
+        },
+        "macos": {
+          "page": "https://nodejs.org/en/download"
+        }
+      },
+      "container": {
+        "feature": "ghcr.io/devcontainers/features/node:1",
+        "options": {
+          "version": "{version}"
+        }
+      },
+      "files": {
+        "test": [
+          "{slug}.test.js",
+          "{slug}.round{n}.test.js"
+        ],
+        "demo": "main.js"
+      },
+      "commands": {
+        "bash": {
+          "test": [
+            "node --test {testFile}"
+          ],
+          "demo": [
+            "node main.js"
+          ]
+        },
+        "powershell": {
+          "test": [
+            "node --test {testFile}"
+          ],
+          "demo": [
+            "node main.js"
+          ]
+        }
+      }
+    },
+    "python": {
+      "name": "Python",
+      "version": "3.12",
+      "tested": "Python {version}",
+      "versionCheck": {
+        "bash": "python3 --version",
+        "powershell": "python --version"
+      },
+      "detect": {
+        "bash": "python3 --version",
+        "powershell": "python --version",
+        "pattern": "Python ([0-9]+\\.[0-9]+)",
+        "min": "{version}"
+      },
+      "results": {
+        "start": "FAILED (errors={fail})",
+        "done": "OK",
+        "note": "Python reports a test that stops with an error as ERROR. It counts as a fail."
+      },
+      "install": {
+        "windows": {
+          "command": "winget install -e --id Python.Python.3.12",
+          "page": "https://www.python.org/downloads/windows/",
+          "note": "If typing python opens the Microsoft Store, install Python from python.org instead and tick \"Add python.exe to PATH\"."
+        },
+        "linux": {
+          "command": "sudo apt install -y python3",
+          "page": "https://www.python.org/downloads/"
+        },
+        "macos": {
+          "page": "https://www.python.org/downloads/macos/"
+        }
+      },
+      "container": {
+        "feature": "ghcr.io/devcontainers/features/python:1",
+        "options": {
+          "version": "os-provided"
+        },
+        "extensions": [
+          "ms-python.python"
+        ]
+      },
+      "files": {
+        "test": [
+          "test_{snake}.py",
+          "test_{snake}_round{n}.py"
+        ],
+        "demo": "main.py"
+      },
+      "commands": {
+        "bash": {
+          "test": [
+            "python3 -m unittest -v {testName}"
+          ],
+          "demo": [
+            "python3 main.py"
+          ]
+        },
+        "powershell": {
+          "test": [
+            "python -m unittest -v {testName}"
+          ],
+          "demo": [
+            "python main.py"
+          ]
+        }
+      }
+    }
+  }
+}

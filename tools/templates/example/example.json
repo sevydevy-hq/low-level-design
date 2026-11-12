@@ -1,0 +1,7 @@
+{
+  "$schema": "../../../tools/schema/example.schema.json",
+  "slug": "{{example}}",
+  "lessons": ["{{lesson}}"],
+  "since": "{{version}}",
+  "sameOutput": true
+}

@@ -1,0 +1,31 @@
+# Build output from running a starter, solution or example.
+# Scoped to code folders, so a source file or folder with one of these names elsewhere is never skipped.
+*.class
+*.o
+*.exe
+/projects/*/*/starter/app
+/projects/*/*/solution/app
+/projects/*/*/starter/run_tests
+/projects/*/*/solution/run_tests
+/projects/*/*/starter/run_tests_round*
+/projects/*/*/solution/run_tests_round*
+/examples/*/*/*/app
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+
+# JavaScript
+node_modules/
+
+# Release and check output (built by tools/, never committed)
+/dist/
+/.check/
+
+# Editors and systems
+.vscode/
+.idea/
+*.swp
+.DS_Store
+Thumbs.db

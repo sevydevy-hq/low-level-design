@@ -1,0 +1,11 @@
+{
+  "$schema": "../../tools/schema/project.schema.json",
+  "slug": "{{slug}}",
+  "title": "{{title}}",
+  "lessons": ["{{lesson}}"],
+  "since": "{{version}}",
+  "sources": { "cpp": ["{{snake}}.cpp"] },
+  "rounds": [
+    { "tests": [], "starterPasses": [] }
+  ]
+}

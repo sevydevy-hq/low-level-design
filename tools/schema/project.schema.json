@@ -1,0 +1,63 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "projects/<project>/project.json: only what is specific to this project",
+  "type": "object",
+  "required": ["slug", "title", "lessons", "since", "rounds"],
+  "additionalProperties": false,
+  "$defs": {
+    "slug": { "type": "string", "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$" },
+    "lines": { "type": "array", "minItems": 1, "items": { "type": "string", "minLength": 1 } }
+  },
+  "properties": {
+    "$schema": { "type": "string" },
+    "slug": { "$ref": "#/$defs/slug", "description": "The folder name and the ZIP name. Never changes after release." },
+    "title": { "type": "string", "minLength": 1, "description": "The name on the lesson's project card." },
+    "lessons": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "$ref": "#/$defs/slug" }, "description": "Every lesson that uses this project." },
+    "since": { "type": "string", "pattern": "^v[0-9]+\\.[0-9]+$", "description": "The first release that has it." },
+    "languages": {
+      "type": "array", "minItems": 1, "uniqueItems": true,
+      "items": { "type": "string", "pattern": "^[a-z][a-z0-9]*$" },
+      "description": "Only when the project leaves out a course language; the lesson must say so. Default: every language in repo.json."
+    },
+    "sources": {
+      "type": "object",
+      "propertyNames": { "pattern": "^[a-z][a-z0-9]*$" },
+      "additionalProperties": { "type": "array", "items": { "type": "string", "minLength": 1 } },
+      "description": "Extra source files a language's commands must name, such as the .cpp files for g++."
+    },
+    "rounds": {
+      "type": "array",
+      "minItems": 1,
+      "description": "Round 1 first. Round n's test file is named by tools/languages.json.",
+      "items": {
+        "type": "object",
+        "required": ["tests", "starterPasses"],
+        "additionalProperties": false,
+        "properties": {
+          "tests": { "type": "array", "uniqueItems": true, "items": { "type": "string", "minLength": 1 }, "description": "Every test name in this round, the same in every language (compared ignoring case, spaces, _ and -)." },
+          "starterPasses": { "type": "array", "uniqueItems": true, "items": { "type": "string", "minLength": 1 }, "description": "Tests the starter already passes. It must fail every other test." }
+        }
+      }
+    },
+    "demo": { "type": "boolean", "default": true, "description": "false if the project has no demo program." },
+    "overrides": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Only when a command really differs from the language default.",
+      "properties": {
+        "commands": {
+          "type": "object",
+          "propertyNames": { "pattern": "^[a-z][a-z0-9]*$" },
+          "additionalProperties": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "bash": { "type": "object", "propertyNames": { "pattern": "^(demo|round-[0-9]+)$" }, "additionalProperties": { "$ref": "#/$defs/lines" } },
+              "powershell": { "type": "object", "propertyNames": { "pattern": "^(demo|round-[0-9]+)$" }, "additionalProperties": { "$ref": "#/$defs/lines" } }
+            }
+          }
+        }
+      }
+    }
+  }
+}

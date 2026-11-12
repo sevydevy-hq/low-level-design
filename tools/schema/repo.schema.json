@@ -1,0 +1,42 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "repo.json: the values every tool and README reads",
+  "type": "object",
+  "required": ["course", "github", "version", "branches", "solutionsTagSuffix", "folders", "languages"],
+  "additionalProperties": false,
+  "properties": {
+    "$schema": { "type": "string" },
+    "course": { "type": "string", "minLength": 1, "description": "The course name as readers see it." },
+    "github": { "type": "string", "pattern": "^[A-Za-z0-9-]+/[A-Za-z0-9._-]+$", "description": "owner/repo on GitHub." },
+    "version": { "type": "string", "pattern": "^v[0-9]+\\.[0-9]+$", "description": "The release being prepared or last released, such as v1.0." },
+    "branches": {
+      "type": "object",
+      "required": ["main", "solutions"],
+      "additionalProperties": false,
+      "properties": {
+        "main": { "type": "string", "minLength": 1 },
+        "solutions": { "type": "string", "minLength": 1 }
+      }
+    },
+    "solutionsTagSuffix": { "type": "string", "pattern": "^-[a-z]+$", "description": "Added to the version for the solutions tag: v1.0-solutions." },
+    "folders": {
+      "type": "object",
+      "required": ["setup"],
+      "additionalProperties": false,
+      "description": "Top-level folders in use. A DSA repo would add problems.",
+      "properties": {
+        "projects": { "type": "string", "pattern": "^[a-z]+$" },
+        "problems": { "type": "string", "pattern": "^[a-z]+$" },
+        "examples": { "type": "string", "pattern": "^[a-z]+$" },
+        "setup": { "type": "string", "pattern": "^[a-z]+$" }
+      }
+    },
+    "languages": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": { "type": "string", "pattern": "^[a-z][a-z0-9]*$" },
+      "description": "Language ids from tools/languages.json that this course uses, in display order."
+    }
+  }
+}

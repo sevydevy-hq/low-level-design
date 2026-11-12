@@ -1,0 +1,11 @@
+# LF line endings everywhere, on every system.
+# The checks compare printed output, and bash scripts fail on CRLF.
+* text=auto eol=lf
+
+# Windows batch files need CRLF to run reliably
+*.cmd text eol=crlf
+
+# Binary files, never converted
+*.png binary
+*.jpg binary
+*.zip binary

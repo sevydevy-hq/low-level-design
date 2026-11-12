@@ -1,0 +1,126 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "tools/languages.json: every language the repos can use",
+  "type": "object",
+  "required": ["container", "languages"],
+  "additionalProperties": false,
+  "$defs": {
+    "lines": { "type": "array", "minItems": 1, "items": { "type": "string", "minLength": 1 } },
+    "url": { "type": "string", "pattern": "^https://" },
+    "shellCommands": {
+      "type": "object",
+      "required": ["test", "demo"],
+      "additionalProperties": false,
+      "properties": {
+        "test": { "$ref": "#/$defs/lines" },
+        "demo": { "$ref": "#/$defs/lines" }
+      }
+    },
+    "installOn": {
+      "type": "object",
+      "required": ["page"],
+      "additionalProperties": false,
+      "properties": {
+        "command": { "type": "string", "minLength": 1, "description": "One install command, shown to the reader. Never run by our scripts." },
+        "page": { "$ref": "#/$defs/url", "description": "The official install page." },
+        "note": { "type": "string", "minLength": 1 }
+      }
+    },
+    "language": {
+      "type": "object",
+      "required": ["name", "tested", "versionCheck", "detect", "install", "files", "commands"],
+      "additionalProperties": false,
+      "properties": {
+        "name": { "type": "string", "minLength": 1 },
+        "version": { "type": "string", "pattern": "^[0-9]+(\\.[0-9]+)?$", "description": "The version GitHub's checks and the ready-made environment install. Omit when the system provides the language (C++). Other fields may say {version}." },
+        "tested": { "type": "string", "minLength": 1, "description": "The version every command is run with, as readers see it, such as \"JDK {version}\"." },
+        "versionCheck": {
+          "type": "object",
+          "required": ["bash", "powershell"],
+          "additionalProperties": false,
+          "description": "The command shown to readers in the README tables.",
+          "properties": { "bash": { "type": "string" }, "powershell": { "type": "string" } }
+        },
+        "detect": {
+          "type": "object",
+          "required": ["bash", "powershell", "pattern", "min"],
+          "additionalProperties": false,
+          "description": "What the setup check scripts run, and how they read the version from the first lines of output.",
+          "properties": {
+            "bash": { "type": "string", "minLength": 1 },
+            "powershell": { "type": "string", "minLength": 1 },
+            "pattern": { "type": "string", "minLength": 1, "description": "One capture group for the version. Must work as POSIX ERE, JavaScript and .NET regex." },
+            "min": { "type": "string", "pattern": "^([0-9]+(\\.[0-9]+)?|\\{version\\})$", "description": "Below this version the check says the version is older than the one we test with. Usually {version}." }
+          }
+        },
+        "results": {
+          "type": "object",
+          "required": ["start", "done"],
+          "additionalProperties": false,
+          "description": "What a test run prints at the end, shown to readers as the line to look for. Tokens: {pass}, {fail}, {total}.",
+          "properties": {
+            "start": { "type": "string", "minLength": 1 },
+            "done": { "type": "string", "minLength": 1 },
+            "note": { "type": "string", "minLength": 1 }
+          }
+        },
+        "install": {
+          "type": "object",
+          "required": ["windows", "linux", "macos"],
+          "additionalProperties": false,
+          "properties": {
+            "windows": { "$ref": "#/$defs/installOn" },
+            "linux": { "$ref": "#/$defs/installOn" },
+            "macos": { "$ref": "#/$defs/installOn" }
+          }
+        },
+        "container": {
+          "type": "object",
+          "additionalProperties": false,
+          "description": "How the ready-made environment gets this language. No feature means the image already has it.",
+          "properties": {
+            "feature": { "type": "string", "pattern": "^ghcr\\.io/" },
+            "options": { "type": "object" },
+            "extensions": { "type": "array", "items": { "type": "string" } }
+          }
+        },
+        "files": {
+          "type": "object",
+          "required": ["test", "demo"],
+          "additionalProperties": false,
+          "properties": {
+            "test": { "type": "array", "minItems": 2, "maxItems": 2, "items": { "type": "string" }, "description": "[round 1 file, later rounds with {n}]" },
+            "testBin": { "type": "array", "minItems": 2, "maxItems": 2, "items": { "type": "string" } },
+            "demo": { "type": "string" }
+          }
+        },
+        "commands": {
+          "type": "object",
+          "required": ["bash", "powershell"],
+          "additionalProperties": false,
+          "properties": {
+            "bash": { "$ref": "#/$defs/shellCommands" },
+            "powershell": { "$ref": "#/$defs/shellCommands" }
+          }
+        },
+        "runner": { "type": "string", "description": "Folder in tools/runners/ whose files every project in this language carries." }
+      }
+    }
+  },
+  "properties": {
+    "$schema": { "type": "string" },
+    "about": { "type": "string" },
+    "container": {
+      "type": "object",
+      "required": ["image"],
+      "additionalProperties": false,
+      "properties": { "image": { "type": "string", "minLength": 1, "description": "The ready-made environment's base image." } }
+    },
+    "languages": {
+      "type": "object",
+      "minProperties": 1,
+      "propertyNames": { "pattern": "^[a-z][a-z0-9]*$" },
+      "additionalProperties": { "$ref": "#/$defs/language" }
+    }
+  }
+}

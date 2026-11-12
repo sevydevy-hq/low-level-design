@@ -1,0 +1,55 @@
+# Publishes a release when a version tag such as v1.0 is pushed on main.
+# Order (docs/STRUCTURE.md section 9): set the version in repo.json, render, rename the CHANGELOG section,
+# commit, merge into solutions, push the v1.0-solutions tag on solutions, then push the v1.0 tag on main.
+# This workflow runs the full check, confirms both tags, builds one ZIP per project and attaches them to the release.
+
+name: Release
+
+on:
+  push:
+    tags: ['v[0-9]+.[0-9]+'] # v1.0, v1.1, v2.0; never v1.0-solutions
+
+permissions:
+  contents: write
+
+jobs:
+  check:
+    uses: ./.github/workflows/check.yml
+    with:
+      branch: main
+
+  release:
+    needs: check
+    runs-on: ubuntu-latest
+    env:
+      TAG: ${{ github.ref_name }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+
+      - name: The tag is on main, and the solutions tag is on solutions
+        run: |
+          MAIN=$(node -p "require('./repo.json').branches.main")
+          SOLUTIONS=$(node -p "require('./repo.json').branches.solutions")
+          SUFFIX=$(node -p "require('./repo.json').solutionsTagSuffix")
+          git merge-base --is-ancestor "$GITHUB_SHA" "origin/$MAIN" \
+            || { echo "::error::$TAG is not on $MAIN"; exit 1; }
+          git rev-parse --quiet --verify "refs/tags/$TAG$SUFFIX" >/dev/null \
+            || { echo "::error::Push the $TAG$SUFFIX tag on $SOLUTIONS first: the READMEs link to it"; exit 1; }
+          git merge-base --is-ancestor "refs/tags/$TAG$SUFFIX" "origin/$SOLUTIONS" \
+            || { echo "::error::$TAG$SUFFIX is not on $SOLUTIONS"; exit 1; }
+
+      - name: Build one ZIP per project, and the notes
+        run: node tools/release.mjs --version "$TAG"
+
+      - name: Publish the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          shopt -s nullglob
+          gh release create "$TAG" dist/"$TAG"/*.zip dist/"$TAG"/SHA256SUMS.txt \
+            --title "$TAG" --notes-file dist/"$TAG"/NOTES.md --verify-tag

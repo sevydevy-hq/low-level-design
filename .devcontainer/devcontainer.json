@@ -1,0 +1,26 @@
+// Written by tools/render.mjs from repo.json and tools/languages.json: do not edit.
+{
+  "name": "Low-Level Design",
+  "image": "mcr.microsoft.com/devcontainers/cpp:1-ubuntu-24.04",
+  "features": {
+    "ghcr.io/devcontainers/features/java:1": {
+      "version": "21"
+    },
+    "ghcr.io/devcontainers/features/node:1": {
+      "version": "22"
+    },
+    "ghcr.io/devcontainers/features/python:1": {
+      "version": "os-provided"
+    }
+  },
+  "postCreateCommand": "bash setup/check-setup.sh",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-vscode.cpptools",
+        "vscjava.vscode-java-pack",
+        "ms-python.python"
+      ]
+    }
+  }
+}
