@@ -54,6 +54,7 @@ Some files are written whole by `render.mjs`, never by hand:
 |---|---|
 | `setup/check-setup.sh`, `.ps1` and `.cmd` (the Windows one-word runner), and a copy of all three in every project | `tools/templates/setup/` plus each language's `detect` and `install` |
 | `.devcontainer/devcontainer.json` | the `container` parts of `tools/languages.json` |
+| `.github/ISSUE_TEMPLATE/code-problem.yml` and `config.yml` | the projects, examples and languages; blank issues are off, lesson problems go to the site's Report button, security problems to the organisation's policy |
 
 The setup check only runs version commands. It never installs anything: it prints the one install command or page for the reader's system. The ready-made environment (GitHub Codespaces, or VS Code's "Reopen in Container") has every course language installed and runs the setup check when it starts.
 

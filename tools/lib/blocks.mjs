@@ -476,6 +476,96 @@ function devcontainer(config) {
   return `// Written by tools/render.mjs from repo.json and tools/languages.json: do not edit.\n${JSON.stringify(body, null, 2)}\n`;
 }
 
+// ---------- GitHub issue form: its choices follow the repo's projects, examples and languages ----------
+
+const yq = (s) => `'${String(s).replace(/'/g, "''")}'`;
+
+function issueForm(config) {
+  const where = [
+    ...listProjects(config).filter((p) => p.data).map((p) => `Project: ${p.data.title} (${p.slug})`),
+    ...listExamples(config).filter((e) => e.data).map((e) => `Example: ${e.lesson} / ${e.slug}`),
+    'The setup check or an install guide',
+    'Something else in this repo',
+  ];
+  const options = (list) => list.map((o) => `        - ${yq(o)}`).join('\n');
+  return `# Written by tools/render.mjs from repo.json, tools/languages.json and the projects: do not edit.
+name: Problem in the code
+description: A command that fails, a test that seems wrong, or a crash in a project or example.
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting this. Please don't include passwords or other private details.
+        A problem in a lesson's text? Use the Report button on the lesson page on sevydevy.com instead.
+  - type: dropdown
+    id: where
+    attributes:
+      label: Which project or example?
+      options:
+${options(where)}
+    validations:
+      required: true
+  - type: dropdown
+    id: language
+    attributes:
+      label: Which language?
+      options:
+${options([...config.repo.languages.map((l) => config.languages[l].name), 'Not about one language'])}
+    validations:
+      required: true
+  - type: dropdown
+    id: system
+    attributes:
+      label: Which computer?
+      options:
+${options(['Windows', 'Mac', 'Linux', 'GitHub Codespaces'])}
+    validations:
+      required: true
+  - type: textarea
+    id: command
+    attributes:
+      label: The command you ran
+      description: Copy it from the terminal.
+      render: shell
+    validations:
+      required: true
+  - type: textarea
+    id: output
+    attributes:
+      label: Everything it printed
+      description: Copy all of it, even if it is long.
+      render: shell
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: What you expected instead
+    validations:
+      required: true
+  - type: textarea
+    id: setup
+    attributes:
+      label: What the setup check printed (optional)
+      description: Run the setup check for your language in the project folder, as in step 2 of the project's README.
+      render: shell
+`;
+}
+
+function issueConfig(config) {
+  return `# Written by tools/render.mjs: do not edit.
+blank_issues_enabled: false
+contact_links:
+  - name: Problem in a lesson
+    url: https://www.sevydevy.com/learn/courses
+    about: Use the Report button on the lesson page.
+  - name: Security problem
+    url: https://github.com/${config.repo.github.split('/')[0]}/.github/blob/main/SECURITY.md
+    about: Please don't report security problems in public. Follow this policy instead.
+`;
+}
+
 /** Files written whole by render.mjs. Every project carries its own copy of the setup check, so its ZIP works alone. */
 export function wholeFiles(config) {
   const { sh, ps1 } = setupScripts(config);
@@ -497,6 +587,8 @@ export function wholeFiles(config) {
   const files = [
     ...scripts(setup),
     { file: path.join(ROOT, '.devcontainer', 'devcontainer.json'), content: devcontainer(config) },
+    { file: path.join(ROOT, '.github', 'ISSUE_TEMPLATE', 'code-problem.yml'), content: issueForm(config) },
+    { file: path.join(ROOT, '.github', 'ISSUE_TEMPLATE', 'config.yml'), content: issueConfig(config) },
   ];
   for (const p of listProjects(config)) {
     if (p.data) files.push(...scripts(p.dir));

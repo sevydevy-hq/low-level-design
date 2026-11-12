@@ -1,0 +1,9 @@
+# Written by tools/render.mjs: do not edit.
+blank_issues_enabled: false
+contact_links:
+  - name: Problem in a lesson
+    url: https://www.sevydevy.com/learn/courses
+    about: Use the Report button on the lesson page.
+  - name: Security problem
+    url: https://github.com/sevydevy-hq/.github/blob/main/SECURITY.md
+    about: Please don't report security problems in public. Follow this policy instead.

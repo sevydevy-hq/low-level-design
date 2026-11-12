@@ -1,0 +1,70 @@
+# Written by tools/render.mjs from repo.json, tools/languages.json and the projects: do not edit.
+name: Problem in the code
+description: A command that fails, a test that seems wrong, or a crash in a project or example.
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting this. Please don't include passwords or other private details.
+        A problem in a lesson's text? Use the Report button on the lesson page on sevydevy.com instead.
+  - type: dropdown
+    id: where
+    attributes:
+      label: Which project or example?
+      options:
+        - 'The setup check or an install guide'
+        - 'Something else in this repo'
+    validations:
+      required: true
+  - type: dropdown
+    id: language
+    attributes:
+      label: Which language?
+      options:
+        - 'C++'
+        - 'Java'
+        - 'JavaScript'
+        - 'Python'
+        - 'Not about one language'
+    validations:
+      required: true
+  - type: dropdown
+    id: system
+    attributes:
+      label: Which computer?
+      options:
+        - 'Windows'
+        - 'Mac'
+        - 'Linux'
+        - 'GitHub Codespaces'
+    validations:
+      required: true
+  - type: textarea
+    id: command
+    attributes:
+      label: The command you ran
+      description: Copy it from the terminal.
+      render: shell
+    validations:
+      required: true
+  - type: textarea
+    id: output
+    attributes:
+      label: Everything it printed
+      description: Copy all of it, even if it is long.
+      render: shell
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: What you expected instead
+    validations:
+      required: true
+  - type: textarea
+    id: setup
+    attributes:
+      label: What the setup check printed (optional)
+      description: Run the setup check for your language in the project folder, as in step 2 of the project's README.
+      render: shell
